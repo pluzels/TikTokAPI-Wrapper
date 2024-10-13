@@ -1,14 +1,14 @@
-const Axios = require("axios");
+const axios = require("axios");
 const asyncRetry = require("async-retry");
 const { load } = require("cheerio");
 
 const _ssstikapi = "https://api.ssstik.io";
 const _ssstikurl = "https://ssstik.io";
-const TiktokURLregex = /https:\/\/(?:m|www|vm|vt|lite)?\.tiktok\.com\/(?:.*\b(?:(?:usr|v|embed|user|video|photo)\/|\?shareId=|\&item_id=)(\d+)|\w+)/;
+const TiktokURLregex = /https:\/\/(?:m|www|vm|vt|lite)?\.?tiktok\.com\/((?:.*\b(?:(?:usr|v|embed|user|video|photo)\/|\?shareId=|\&item_id=)(\d+))|\w+)/;
 
 const fetchTT = async () => {
   try {
-    const { data } = await Axios.get(_ssstikurl);
+    const { data } = await axios.get(_ssstikurl);
     const regex = /s_tt\s*=\s*["']([^"']+)["']/;
     const match = data.match(regex);
     if (match) return match[1];
@@ -29,8 +29,8 @@ const SSSTik = async (url) => {
   try {
     const response = await asyncRetry(
       async () => {
-        const res = await Axios.post(
-          \`\${_ssstikapi}/download\`,
+        const res = await axios.post(
+          `${_ssstikapi}/download`,  // Literal template tanpa escape
           new URLSearchParams({
             id: url,
             locale: "en",
