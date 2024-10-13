@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok Downloader</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>TikTok Downloader</h1>
+    <form action="/download" method="POST">
+      <input type="text" name="url" placeholder="Enter TikTok URL" required>
+      <button type="submit">Download</button>
+    </form>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    document.querySelector("form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const form = new FormData(this);
+      const url = form.get("url");
+
+      const response = await fetch("/download", {
+        method: "POST",
+        body: new URLSearchParams(form),
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      });
+
+      const resultDiv = document.getElementById("result");
+      if (response.ok) {
+        const data = await response.json();
+        if (data.type === "video") {
+          resultDiv.innerHTML = `
+            <h2>${data.author.nickname}</h2>
+            <video src="${data.video}" controls></video>
+            <a href="${data.music}" download>Download Music</a>
+          `;
+        } else if (data.type === "image") {
+          resultDiv.innerHTML = `
+            <h2>${data.author.nickname}</h2>
+            ${data.images.map(img => `<img src="${img}" width="200">`).join('')}
+            <a href="${data.music}" download>Download Music</a>
+          `;
+        }
+      } else {
+        const error = await response.json();
+        resultDiv.innerHTML = `<p>Error: ${error.error}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
